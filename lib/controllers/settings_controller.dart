@@ -58,7 +58,7 @@ class SettingsController extends GetxController {
         return Obx(() => Center(
               child: SizedBox(
                 width: 600,
-                height: 450,
+                height: 400,
                 child: Scaffold(
                   body: Padding(
                     padding: const EdgeInsets.all(28.0),

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:isolate';
 import 'package:get/get.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -28,7 +29,8 @@ class DbRestore {
 
   static void restore(List<dynamic> args) async {
     var sendPort = args[0] as SendPort;
-    databaseFactory.setDatabasesPath('databases/');
+    String? userHome = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+    databaseFactory.setDatabasesPath('$userHome/workshop databases/');
     List<Map> data = args[1];
     if (data.isNotEmpty) {
       for (var element in data) {
