@@ -264,6 +264,8 @@ class _InputFormState extends State<InputForm> {
                       dataController.data.removeAt(editedItem[0]);
                       dataController.data.insert(editedItem[0], editedItem[1]);
                     }
+                    levelController.getLevels();
+                    workStateController.getWorkState();
                   }
                 },
                 icon: inputController.edit.value

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:intl/number_symbols_data.dart';
 import 'package:mime/mime.dart';
 import 'package:fatah_workshop/models/common/database.dart';
 import 'package:flutter/material.dart';
@@ -128,7 +129,8 @@ class InputController extends GetxController {
     itemDate.value = DateFormat('y-MM-dd').format(DateTime.parse(card['day']));
     receiveNumber.text = card['receive_n'].toString();
     itemName.text = card['item'];
-    itemPrice.text = card['price'].toString();
+    String price = card['price'].toString();
+    itemPrice.text = price.substring(0, price.length - 2);
     remark.text = card['remark'];
     dropDownValue.value = card['level'];
     getPictures();

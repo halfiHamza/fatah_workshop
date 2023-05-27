@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dart_random_choice/dart_random_choice.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -28,10 +27,6 @@ class SqlDb {
         ? dbPref.toString()
         : '${DateTime.now().year.toString()}.db';
     return _dbName.toString();
-  }
-
-  set dbName(var name) {
-    _dbName = name;
   }
 
   String? get userHome =>
@@ -66,7 +61,6 @@ class SqlDb {
           ''');
   }
 
-  // ignore: non_constant_identifier_names
   insertData(
       {required String table, required Map<String, Object?> data}) async {
     Database? myDb = await db;

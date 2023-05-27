@@ -19,6 +19,9 @@ class SettingsController extends GetxController {
   final chargeController = TextEditingController();
   SqlDb database = SqlDb();
 
+  String? get userHome =>
+      Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+
   chargeAmount({int value = 0}) async {
     final SharedPreferences sharedPref = await SharedPreferences.getInstance();
     int? chargePref = sharedPref.getInt("charge");
@@ -38,7 +41,7 @@ class SettingsController extends GetxController {
         ? dbPref.toString()
         : '${DateTime.now().year.toString()}.db';
     dbFiles.clear();
-    Directory dbDir = Directory("databases");
+    Directory dbDir = Directory("$userHome/workshop databases");
     await for (var entity in dbDir.list(recursive: true, followLinks: false)) {
       dbFiles.add(entity.path.split('\\').last);
     }
@@ -114,9 +117,9 @@ class SettingsController extends GetxController {
                                             dropDownValue.value = value!;
                                             sharedPref.setString(
                                                 '_databaseName', dbFiles[value]);
-                                            await database.initDb();
                                           },
-                                        )
+                                        ),
+                                  //IconButton(onPressed: (){}, icon: const Icon(FluentIcons.delete_dismiss_24_regular))
                                 ],
                               ),
                               Row(
