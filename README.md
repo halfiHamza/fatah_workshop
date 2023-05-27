@@ -1,9 +1,10 @@
 # fatah_workshop
 
-Workshop personal use
+Simple desktop application for workshop
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+flutter pug get
+flutter run
 
-![](screen/home.jpg)
+![ALT home page](screen/home.jpg)
