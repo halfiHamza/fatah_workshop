@@ -28,6 +28,43 @@ class _InputFormState extends State<InputForm> {
   bool receiveValidate = true;
   bool priceValidate = true;
 
+  Future<bool> emptyInputAlert() async {
+    return await showDialog<bool>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                contentPadding: const EdgeInsets.all(2.0),
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(6.0))),
+                icon: const Icon(
+                  FluentIcons.form_28_regular,
+                  size: 50,
+                ),
+                iconColor: const Color(0xFF526480),
+                content: const SizedBox(
+                  height: 40,
+                  child: Column(
+                    children: [
+                      Text("Incomplete item information"),
+                    ],
+                  ),
+                ),
+                actionsAlignment: MainAxisAlignment.spaceAround,
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "Ok",
+                        style: TextStyle(color: Colors.lightBlue),
+                      )),
+                ],
+              );
+            }) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -251,12 +288,16 @@ class _InputFormState extends State<InputForm> {
           Obx(() => ElevatedButton.icon(
                 onPressed: () async {
                   if (!inputController.edit.value) {
-                    Map newItem = await inputController.addItem();
-                    if (newItem.isNotEmpty) {
+                    if (inputController.receiveNumber.text.isNotEmpty &
+                        inputController.itemName.text.isNotEmpty &
+                        inputController.itemPrice.text.isNotEmpty) {
+                      Map newItem = await inputController.addItem();
                       dataController.data.insert(0, newItem);
+                      await levelController.getLevels();
+                      await workStateController.getWorkState();
+                    } else {
+                      await emptyInputAlert();
                     }
-                    await levelController.getLevels();
-                    await workStateController.getWorkState();
                   } else {
                     List<dynamic> editedItem =
                         await inputController.updateData();
