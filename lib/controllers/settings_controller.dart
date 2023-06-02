@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:fatah_workshop/models/common/database.dart';
 import 'package:fatah_workshop/models/common/database_restore.dart';
-import 'package:fatah_workshop/models/home/home_list_view_controller.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +13,11 @@ class SettingsController extends GetxController {
   }
 
   late RxList dbFiles = [].obs;
+  late RxString selectedFile = "".obs;
   late RxInt dropDownValue = 0.obs;
   late RxBool chargeValidate = true.obs;
+  final String changeMsg = "You need to restart the application";
+  late RxBool changed = false.obs;
   final chargeController = TextEditingController();
   SqlDb database = SqlDb();
 
@@ -41,16 +43,16 @@ class SettingsController extends GetxController {
         ? dbPref.toString()
         : '${DateTime.now().year.toString()}.db';
     dbFiles.clear();
-    Directory dbDir = Directory("$userHome/workshop databases");
+    Directory dbDir = Directory("$userHome\\workshop databases");
     await for (var entity in dbDir.list(recursive: true, followLinks: false)) {
       dbFiles.add(entity.path.split('\\').last);
     }
     dropDownValue.value = dbFiles.indexOf(databaseName);
+    selectedFile.value = databaseName;
   }
 
   settingsDialog({required BuildContext context}) async {
     DbRestore dbRestore = Get.put(DbRestore());
-    DataController dataController = Get.put(DataController());
     showGeneralDialog(
       context: context,
       barrierLabel: "Barrier",
@@ -99,27 +101,46 @@ class SettingsController extends GetxController {
                                     width: 10,
                                   ),
                                   DropdownButton(
-                                          value: dropDownValue.value,
-                                          items: List.generate(
-                                              dbFiles.length,
-                                              (index) => DropdownMenuItem(
-                                                    value: index,
-                                                    child: Text(
-                                                      dbFiles[index],
-                                                      style: const TextStyle(
-                                                          fontSize: 14),
-                                                    ),
-                                                  )),
-                                          onChanged: (int? value) async {
-                                            final SharedPreferences sharedPref =
-                                                await SharedPreferences
-                                                    .getInstance();
-                                            dropDownValue.value = value!;
-                                            sharedPref.setString(
-                                                '_databaseName', dbFiles[value]);
-                                          },
-                                        ),
-                                  //IconButton(onPressed: (){}, icon: const Icon(FluentIcons.delete_dismiss_24_regular))
+                                    underline: null,
+                                    value: dropDownValue.value,
+                                    items: List.generate(
+                                        dbFiles.length,
+                                        (index) => DropdownMenuItem(
+                                              value: index,
+                                              child: Text(
+                                                dbFiles[index],
+                                                style: const TextStyle(
+                                                    fontSize: 14),
+                                              ),
+                                            )),
+                                    onChanged: (int? value) {
+                                      dropDownValue.value = value!;
+                                    },
+                                  ),
+                                  const SizedBox(width: 5,),
+                                  IconButton(
+                                    hoverColor: Colors.green[200],
+                                      onPressed: () async {
+                                        final SharedPreferences sharedPref =
+                                        await SharedPreferences.getInstance();
+                                        sharedPref.setString(
+                                            '_databaseName', dbFiles[dropDownValue.value]);
+                                        changed.value = true;
+                                      },
+                                      tooltip: "Select database",
+                                      icon: Icon(
+                                        FluentIcons.select_all_on_24_regular,
+                                        color: Colors.green[800],
+                                        size: 24,
+                                      )),
+                                  const SizedBox(width: 20,),
+                                  changed.value
+                                      ? Text(
+                                          changeMsg,
+                                          style: TextStyle(
+                                              color: Get.isDarkMode ? Colors.grey: Colors.grey[800]),
+                                        )
+                                      : const SizedBox()
                                 ],
                               ),
                               Row(
@@ -141,8 +162,8 @@ class SettingsController extends GetxController {
                                           await dbRestore.readDbFile(filePath);
                                         }
                                         await databaseFiles();
-                                        dataController.refreshListView();
                                       },
+                                      tooltip: "Select database file",
                                       icon: const Icon(
                                           FluentIcons.folder_20_regular))
                                 ],
