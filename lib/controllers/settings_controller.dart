@@ -11,14 +11,15 @@ class SettingsController extends GetxController {
   SettingsController() {
     databaseFiles();
   }
-
   late RxList dbFiles = [].obs;
   late RxString selectedFile = "".obs;
   late RxInt dropDownValue = 0.obs;
   late RxBool chargeValidate = true.obs;
   final String changeMsg = "You need to restart the application";
   late RxBool changed = false.obs;
+  late RxBool empty = false.obs;
   final chargeController = TextEditingController();
+  final databaseName = TextEditingController();
   SqlDb database = SqlDb();
 
   String? get userHome =>
@@ -32,7 +33,7 @@ class SettingsController extends GetxController {
     } else {
       chargePref != null
           ? chargeController.text = chargePref.toString()
-          : chargeController.text = '39000';
+          : chargeController.text = '492000';
     }
   }
 
@@ -63,7 +64,7 @@ class SettingsController extends GetxController {
         return Obx(() => Center(
               child: SizedBox(
                 width: 600,
-                height: 400,
+                height: 500,
                 child: Scaffold(
                   body: Padding(
                     padding: const EdgeInsets.all(28.0),
@@ -87,6 +88,50 @@ class SettingsController extends GetxController {
                           ],
                         ),
                         const Divider(),
+                        // Row(
+                        //   children: [
+                        //     SizedBox(
+                        //       width: 200,
+                        //       child: TextField(
+                        //         controller: databaseName,
+                        //         keyboardType: TextInputType.number,
+                        //         textAlign: TextAlign.center,
+                        //         style: const TextStyle(
+                        //             fontSize: 18.0,
+                        //             fontWeight: FontWeight.bold),
+                        //         decoration: const InputDecoration(
+                        //           border: OutlineInputBorder(
+                        //               borderSide: BorderSide(width: 0.5)),
+                        //           // errorText: "Must be numbers only",
+                        //           label: Text(
+                        //             "Create new database",
+                        //             style: TextStyle(
+                        //                 fontSize: 16.0,
+                        //                 fontWeight: FontWeight.w600),
+                        //             textAlign: TextAlign.center,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     const SizedBox(
+                        //       width: 8,
+                        //     ),
+                        //     IconButton(
+                        //         onPressed: () async {
+                        //           final SharedPreferences sharedPref =
+                        //               await SharedPreferences.getInstance();
+                        //           sharedPref.setString('_databaseName',
+                        //               "${databaseName.text}.db");
+                        //           changed.value = true;
+                        //         },
+                        //         icon: const Icon(
+                        //           FluentIcons.checkbox_arrow_right_24_regular,
+                        //           size: 28,
+                        //           color: Colors.green,
+                        //         ))
+                        //   ],
+                        // ),
+                        // const Divider(),
                         SizedBox(
                           height: 100,
                           child: Column(
@@ -117,14 +162,17 @@ class SettingsController extends GetxController {
                                       dropDownValue.value = value!;
                                     },
                                   ),
-                                  const SizedBox(width: 5,),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
                                   IconButton(
-                                    hoverColor: Colors.green[200],
+                                      hoverColor: Colors.green[200],
                                       onPressed: () async {
                                         final SharedPreferences sharedPref =
-                                        await SharedPreferences.getInstance();
-                                        sharedPref.setString(
-                                            '_databaseName', dbFiles[dropDownValue.value]);
+                                            await SharedPreferences
+                                                .getInstance();
+                                        sharedPref.setString('_databaseName',
+                                            dbFiles[dropDownValue.value]);
                                         changed.value = true;
                                       },
                                       tooltip: "Select database",
@@ -133,12 +181,16 @@ class SettingsController extends GetxController {
                                         color: Colors.green[800],
                                         size: 24,
                                       )),
-                                  const SizedBox(width: 20,),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
                                   changed.value
                                       ? Text(
                                           changeMsg,
                                           style: TextStyle(
-                                              color: Get.isDarkMode ? Colors.grey: Colors.grey[800]),
+                                              color: Get.isDarkMode
+                                                  ? Colors.grey
+                                                  : Colors.grey[800]),
                                         )
                                       : const SizedBox()
                                 ],
@@ -160,12 +212,27 @@ class SettingsController extends GetxController {
                                               .toString();
                                           dbRestore.progress.value = true;
                                           await dbRestore.readDbFile(filePath);
+                                        } else {
+                                          empty.value = true;
                                         }
+                                        dbRestore.progress.value = false;
                                         await databaseFiles();
                                       },
                                       tooltip: "Select database file",
                                       icon: const Icon(
-                                          FluentIcons.folder_20_regular))
+                                          FluentIcons.folder_20_regular)),
+                                  const SizedBox(
+                                    width: 30,
+                                  ),
+                                  empty.value
+                                      ? Text(
+                                          "Empty database file ",
+                                          style: TextStyle(
+                                              color: Get.isDarkMode
+                                                  ? Colors.grey
+                                                  : Colors.grey[800]),
+                                        )
+                                      : const SizedBox()
                                 ],
                               ),
                             ],

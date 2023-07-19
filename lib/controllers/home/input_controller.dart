@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:intl/number_symbols_data.dart';
 import 'package:mime/mime.dart';
 import 'package:fatah_workshop/models/common/database.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,7 @@ class InputController extends GetxController {
   RxInt cardIndex = 0.obs;
   RxList pictures = [].obs;
   List<String> pictureColumns = ['picture_a', 'picture_b', 'picture_c'].obs;
- // input date controller
+  // input date controller
   RxString currentDate = DateFormat.yMMMEd()
       .format(DateTime.now())
       .obs; // current date; // current date
@@ -49,7 +48,8 @@ class InputController extends GetxController {
     imageController.clearImages();
     edit.value = false;
   }
-  Map<String, Object?> globalInput(){
+
+  Map<String, Object?> globalInput() {
     return {
       'day': '$itemDate',
       'receive_n': receiveNumber.text,
@@ -62,24 +62,31 @@ class InputController extends GetxController {
       'picture_c': pictures.length > 2 ? pictures[2] : null
     };
   }
+
   // get item pictures from database and put theme into image controller
   getPictures() async {
     imageController.clearImages();
     final Directory tempDir = await getTemporaryDirectory();
-    List<Map> pictures = await db.getPictures(table: "repair", colId: 'id', id: cardId.value);
-    if(pictures.isNotEmpty){
+    List<Map> pictures =
+        await db.getPictures(table: "repair", colId: 'id', id: cardId.value);
+    if (pictures.isNotEmpty) {
       for (String column in pictureColumns) {
-        if(pictures[0][column]!=null){
-          String picExtension = extensionFromMime(lookupMimeType('', headerBytes: base64Decode(pictures[0][column]))!);
-          if(picExtension == 'jpe'){
+        if (pictures[0][column] != null) {
+          String picExtension = extensionFromMime(lookupMimeType('',
+              headerBytes: base64Decode(pictures[0][column]))!);
+          if (picExtension == 'jpe') {
             picExtension = 'jpeg';
           }
           String picPath = '${tempDir.path.toString()}\\$column.$picExtension';
-          await File(picPath).writeAsBytes(base64Decode(pictures[0][column]), mode: FileMode.write);
-          imageController.addImage(ImageFile(column, name: column, extension: picExtension, path: picPath));
+          await File(picPath).writeAsBytes(base64Decode(pictures[0][column]),
+              mode: FileMode.write);
+          imageController.addImage(ImageFile(column,
+              name: column, extension: picExtension, path: picPath));
         }
-      }}
+      }
+    }
   }
+
   // encode pictures to base64 and append it to list of pictures
   convertPictures() async {
     imageController.images.toList().forEach((image) {
@@ -90,6 +97,7 @@ class InputController extends GetxController {
       }
     });
   }
+
   // insert item data into database
   Future<Map> addItem() async {
     convertPictures();
@@ -120,8 +128,9 @@ class InputController extends GetxController {
     );
     return newItem;
   }
+
   // get card data and put it into form inputs
-  editCard({required Map card, required int index}){
+  editCard({required Map card, required int index}) {
     edit.value = true;
     cardIndex.value = index;
     cardId.value = card['id'];
@@ -130,7 +139,7 @@ class InputController extends GetxController {
     receiveNumber.text = card['receive_n'].toString();
     itemName.text = card['item'];
     String price = card['price'].toString();
-    itemPrice.text = price.substring(0, price.length - 2);
+    itemPrice.text = double.parse(price).toInt().toString();
     remark.text = card['remark'];
     dropDownValue.value = card['level'];
     getPictures();
@@ -144,13 +153,14 @@ class InputController extends GetxController {
       backgroundColor: Colors.blue,
     );
   }
+
   // update item data in database
   updateData() async {
     convertPictures();
     Map<String, Object?> data = globalInput();
-    int response =
-        await db.updateData(table: "repair", colId: 'id', id: cardId.value, data: data);
-    if(response==1){
+    int response = await db.updateData(
+        table: "repair", colId: 'id', id: cardId.value, data: data);
+    if (response == 1) {
       List<dynamic> editedItem = [
         cardIndex.value,
         {

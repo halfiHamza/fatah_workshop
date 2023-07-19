@@ -12,8 +12,8 @@ class DbRestore {
     data.clear();
     final receivePort = ReceivePort();
     Database? db = await databaseFactory.openDatabase(dbName);
-    List<Map> response = await db
-        .rawQuery("SELECT day, receive_n, item, price, remark FROM tasks");
+    List<Map> response = await db.rawQuery(
+        "SELECT day, receive_n, item, price, remark, level, picture_a, picture_b, picture_c FROM repair");
     if (response.isNotEmpty) {
       data.addAll(response);
       await Isolate.spawn(restore, [receivePort.sendPort, data]);
@@ -29,22 +29,27 @@ class DbRestore {
 
   static void restore(List<dynamic> args) async {
     var sendPort = args[0] as SendPort;
-    String? userHome = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+    String? userHome =
+        Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
     databaseFactory.setDatabasesPath('$userHome/workshop databases/');
     List<Map> data = args[1];
     if (data.isNotEmpty) {
       for (var element in data) {
-        List date = element['day'].split('/');
-        Database? db = await databaseFactory.openDatabase('${date[2]}.db',
+        List date = element['day'].split('-');
+        Database? db = await databaseFactory.openDatabase('${date[0]}.db',
             options: OpenDatabaseOptions(
               onConfigure: _onCreate,
             ));
         await db.insert("repair", {
-          'day': '${date[2]}-${date[1]}-${date[0]}',
+          'day': element['day'],
           'receive_n': element['receive_n'],
           'item': '${element['item']}',
           'price': element['price'],
-          'remark': '${element['remark']}'
+          'remark': '${element['remark']}',
+          'level': element['level'],
+          'picture_a': '${element['picture_a']}',
+          'picture_b': '${element['picture_b']}',
+          'picture_c': '${element['picture_c']}'
         });
         await db.close();
       }

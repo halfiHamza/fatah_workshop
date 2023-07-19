@@ -29,9 +29,9 @@ class ThemeController extends GetxController {
   void onInit() async {
     final SharedPreferences sharedPref = await SharedPreferences.getInstance();
     String? theme = sharedPref.getString('theme');
-    if(theme != null){
+    if (theme != null) {
       themeMode.value = theme;
-    }else{
+    } else {
       themeMode.value = 'light';
     }
     super.onInit();
